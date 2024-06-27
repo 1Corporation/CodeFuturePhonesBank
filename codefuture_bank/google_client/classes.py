@@ -18,7 +18,7 @@ class GoogleClient(GoogleClientInterface):
         self.service = build('sheets', 'v4', credentials=self.credentials)
         self.sheet = self.service.spreadsheets()
 
-    def read_row(self, row: int, sheet_id, sheet_name, *args, **kwargs):
+    def read_row(self, row: int, sheet_id, sheet_name, *args, **kwargs) -> list:
         range_name = f'{sheet_name}!{row}:{row}'
         result = self.sheet.values().get(spreadsheetId=sheet_id,
                                          range=range_name).execute()

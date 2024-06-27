@@ -8,5 +8,5 @@ class GoogleClientInterface(ABC, Singleton):
         pass
 
     @abstractmethod
-    def read_row(self, row: int, sheet_id, sheet_name, *args, **kwargs):
+    def read_row(self, row: int, sheet_id, sheet_name, *args, **kwargs) -> list:
         pass
