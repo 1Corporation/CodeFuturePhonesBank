@@ -40,22 +40,29 @@ class Table(TableInterface):
     def table_name(self):
         return self.__table_name
 
+    @property
+    def phone_col(self):
+        return self.__phone_column
+
+    @property
+    def fcs_col(self):
+        return self.__fcs_column
+
 
 class TableManager(TableManagerInterface):
 
-    def __init__(self):
-        super().__init__()
+    def init(self):
         self.__tables: Dict[str, TableInterface] = {}
 
-    def get_table(self, table_name: str):
-        table = self.__tables.get(table_name)
+    def get(self, key: str, *args, **kwargs):
+        table = self.__tables.get(key)
 
         if table is None:
-            raise ValueError(f'Table {table_name} does not exist')
+            raise ValueError(f'Table {key} does not exist')
 
         return table
 
-    def new_table(self, table: TableInterface):
+    def new(self, table: TableInterface, *args, **kwargs):
         if self.__tables.get(table.table_name) is not None:
             raise ValueError(f'Table {table.table_name} already exists')
 
@@ -81,6 +88,6 @@ class TableFactory(TableFactoryInterface):
         table = Table(*args)
         google_table = GoogleTables(*args)
         google_table.save()
-        TableManager().new_table(table)
+        TableManager().new(table)
 
         return table

@@ -10,7 +10,7 @@ CREDENTIALS_FILE = 'codefuturetelegramsbank-token.json'
 
 class GoogleClient(GoogleClientInterface):
 
-    def __init__(self):
+    def init(self):
         self.credentials = service_account.Credentials.from_service_account_file(
             CREDENTIALS_FILE,
             scopes=["https://www.googleapis.com/auth/spreadsheets"]
@@ -39,6 +39,5 @@ class GoogleClient(GoogleClientInterface):
         return f"{sheet_name}!{cell}:{cell}"
 
 
-google_client = GoogleClient()
-print(google_client.read_row(1, "18g705H3hOw1xoFoNFk2r7onw7PrV43tQIDOiQz2VYpE", "Лист1"))
-
+GOOGLE_CLIENT = GoogleClient()
+GoogleClient()

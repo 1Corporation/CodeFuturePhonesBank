@@ -6,11 +6,30 @@ class Singleton(object):
 
     def __new__(cls, *args, **kwargs):
         if not isinstance(cls._instance, cls):
-            cls._instance = object.__new__(cls, *args, **kwargs)
+            cls._instance = super(Singleton, cls).__new__(cls, *args, **kwargs)
+            cls._initialized = False
         return cls._instance
 
+    def __init__(self, *args, **kwargs):
+        if not self.__class__._initialized:
+            self.__class__._initialized = True  # Устанавливаем флаг инициализации в True
+            self.init(*args, **kwargs)
 
-class AbstractFactory(Singleton, ABC):
+    def init(self, *args, **kwargs):
+        pass
+
+
+class AbstractFactoryInterface(Singleton, ABC):
     @abstractmethod
     def create(self, *args, **kwargs):
+        pass
+
+
+class BaseManagerInterface(ABC, Singleton):
+    @abstractmethod
+    def new(self, *args, **kwargs):
+        pass
+
+    @abstractmethod
+    def get(self, key, *args, **kwargs):
         pass

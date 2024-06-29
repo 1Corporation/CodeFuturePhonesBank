@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
-from typing import Dict
 
-from utils.patterns import AbstractFactory, Singleton
+from utils.patterns import AbstractFactoryInterface, BaseManagerInterface
 
 
 class TableInterface(ABC):
@@ -18,17 +17,20 @@ class TableInterface(ABC):
     def table_name(self):
         pass
 
-
-class TableManagerInterface(ABC, Singleton):
-
     @abstractmethod
-    def new_table(self, table: TableInterface):
+    @property
+    def fcs_col(self):
         pass
 
     @abstractmethod
-    def get_table(self, table_name: str):
+    @property
+    def phone_col(self):
         pass
 
 
-class TableFactoryInterface(AbstractFactory, Singleton):
+class TableManagerInterface(BaseManagerInterface):
+    pass
+
+
+class TableFactoryInterface(AbstractFactoryInterface):
     pass
