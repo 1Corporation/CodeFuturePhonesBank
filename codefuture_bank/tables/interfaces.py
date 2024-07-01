@@ -13,17 +13,21 @@ class TableInterface(ABC):
         pass
 
     @abstractmethod
+    def set_status(self, row: int, statu: str):
+        pass
+
     @property
+    @abstractmethod
     def table_name(self):
         pass
 
-    @abstractmethod
     @property
+    @abstractmethod
     def fcs_col(self):
         pass
 
-    @abstractmethod
     @property
+    @abstractmethod
     def phone_col(self):
         pass
 

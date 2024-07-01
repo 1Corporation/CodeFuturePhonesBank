@@ -1,4 +1,4 @@
-from typing import Dict, Tuple
+from typing import Dict
 
 from google_client.classes import GoogleClient
 from tables.interfaces import TableManagerInterface, TableInterface, TableFactoryInterface
@@ -29,12 +29,15 @@ class Table(TableInterface):
 
     def get_row(self, row: int):
         client = GoogleClient()
-        row = client.read_row(row, self.__sheet_id, self.__sheet_name)
+        row = client.read_row(row, self.__sheet_id, self.__sheet_name).row
         return {
             "fsc": row[self.__fcs_column],
             "phone": row[self.__phone_column],
             "status": row[self.__status_column]
         }
+
+    def set_status(self, row: int, value: str):
+        self.set_value(row, self.__status_column, value)
 
     @property
     def table_name(self):
@@ -71,22 +74,19 @@ class TableManager(TableManagerInterface):
 
 
 class TableFactory(TableFactoryInterface):
-    def create(self, *args: Tuple[str, str, str, int, int, int], **kwargs):
-        """
-        Create a table
 
-        Args:
-            *args: A tuple containing the following arguments:
-                - table_name: str,
-                - sheet_id: str,
-                - sheet_name: str,
-                - fcs_column: int,
-                - hone_column: int,
-                - status_column: int
-        """
+    def init(self):
+        super().__init__()
+        tables = GoogleTables.objects.all()
+        for table in tables:
+            self.create(table.name, table.sheet_id, table.sheet_name, table.fcs_column, table.phone_column,
+                        table.status_column)
 
-        table = Table(*args)
-        google_table = GoogleTables(*args)
+    def create(self, table_name: str, sheet_id: str, sheet_name: str, fcs_column: int, phone_column: int,
+               status_column: int, *args, **kwargs):
+        table = Table(table_name, sheet_id, sheet_name, fcs_column, phone_column, status_column)
+        google_table = GoogleTables(name=table_name, sheet_id=sheet_id, sheet_name=sheet_name, fcs_column=fcs_column,
+                                    phone_column=phone_column, status_column=status_column)
         google_table.save()
         TableManager().new(table)
 

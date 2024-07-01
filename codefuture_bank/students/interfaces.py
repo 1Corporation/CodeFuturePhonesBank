@@ -4,23 +4,23 @@ from utils.patterns import AbstractFactoryInterface, BaseManagerInterface
 
 
 class StudentInterface(ABC):
-    @abstractmethod
     @property
+    @abstractmethod
     def telegram_id(self):
         pass
 
-    @abstractmethod
     @property
+    @abstractmethod
     def username(self):
         pass
 
-    @abstractmethod
     @property
+    @abstractmethod
     def phone(self):
         pass
 
-    @abstractmethod
     @property
+    @abstractmethod
     def fcs(self):
         pass
 
@@ -34,8 +34,8 @@ class StudentIteratorInterface(ABC):
     def next(self):
         pass
 
-    @abstractmethod
     @property
+    @abstractmethod
     def name(self):
         pass
 

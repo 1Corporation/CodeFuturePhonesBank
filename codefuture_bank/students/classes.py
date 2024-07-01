@@ -2,6 +2,7 @@ from students import interfaces
 from typing import Optional, Dict
 
 from tables.interfaces import TableInterface
+from tables.models import GoogleTables
 from students.models import Students
 from serializers.serializers import phone_serializer, fcs_serializer
 
@@ -29,13 +30,43 @@ class Student(interfaces.StudentInterface):
     def telegram_id(self):
         return self.__telegram_id
 
+    @telegram_id.setter
+    def telegram_id(self, telegram_id):
+        self.__telegram_id = telegram_id
+
+    @username.setter
+    def username(self, username):
+        self.__username = username
+
+    @fcs.setter
+    def fcs(self, fcs):
+        self.__fcs = fcs_serializer(fcs)
+
+    @phone.setter
+    def phone(self, phone):
+        self.__phone = phone_serializer(phone)
+
+    def create_student(self):
+        try:
+            Students.objects.get(telegram_id=self.telegram_id)
+            raise ValueError(f"{self.telegram_id} already exists")
+        except Students.DoesNotExist as e:  # TODO: Заменить на ошибку, возникающую при нарушении правила primary key
+            student = Students()
+            student.telegram_id = self.telegram_id
+            student.username = self.username
+            student.phone = self.phone
+            student.fcs = self.fcs
+
+            student.save()
+            return self
+
 
 class BaseStudentsIterator(interfaces.StudentIteratorInterface):
 
     def __init__(self, name, table: TableInterface):
         self.__name = name
         self.__table = table
-        self.__row: int = 1
+        self.row: int = 1
 
     @property
     def name(self):
@@ -43,7 +74,7 @@ class BaseStudentsIterator(interfaces.StudentIteratorInterface):
 
     def get_row(self):
 
-        row = self.__table.get_row(self.__row)
+        row = self.__table.get_row(self.row)
         assert row.get("fcs"), "Iterator is over"
 
         return row
@@ -54,7 +85,7 @@ class BaseStudentsIterator(interfaces.StudentIteratorInterface):
         fcs = fcs_serializer(row[self.__table.fcs_col])
 
         try:
-            student = Students.objects.get(phone=phone_serializer(phone))
+            student = Students.objects.get(phone)
             return Student(student.telegram_id, student.username, student.phone, student.fcs)
 
         except Students.DoesNotExist:
@@ -66,7 +97,7 @@ class BaseStudentsIterator(interfaces.StudentIteratorInterface):
 
 class AllStudentsIterator(BaseStudentsIterator):
     def next(self):
-        self.__row += 1
+        self.row += 1
         return self.get_student(self.get_row())
 
 
@@ -75,9 +106,9 @@ class InDatabaseOnlyIterator(BaseStudentsIterator):
         while True:
             student = self.get_student(self.get_row())
             if student.telegram_id is None:
-                self.__row += 1
+                self.row += 1
                 continue
-            self.__row += 1
+            self.row += 1
             return student
 
 
@@ -86,13 +117,19 @@ class NotInDatabaseOnlyIterator(BaseStudentsIterator):
         while True:
             student = self.get_student(self.get_row())
             if student.telegram_id is not None:
-                self.__row += 1
+                self.row += 1
                 continue
-            self.__row += 1
+            self.row += 1
             return student
 
 
 class StudentsIteratorFactory(interfaces.StudentInteratorFactoryInterface):
+
+    def __init__(self):
+        super().__init__()
+        tables = GoogleTables.objects.all()
+        for table in tables:
+            self.create(table.name, table, 'all')
 
     def create(self, name, table: TableInterface, iter_type: str, *args, **kwargs):
         iterator = None
