@@ -5,11 +5,12 @@ from googleapiclient.discovery import build
 
 from google_client.interfaces import GoogleClientInterface
 from google_client.serializer import SerializerInterface, Serializer
+from utils.patterns import Singleton
 
 CREDENTIALS_FILE = 'codefuturetelegramsbank-token.json'
 
 
-class GoogleClient(GoogleClientInterface):
+class GoogleClient(GoogleClientInterface, Singleton):
 
     def init(self):
         self.credentials = service_account.Credentials.from_service_account_file(
@@ -40,5 +41,4 @@ class GoogleClient(GoogleClientInterface):
         return f"{sheet_name}!{cell}:{cell}"
 
 
-GOOGLE_CLIENT = GoogleClient()
-GoogleClient()
+client = GoogleClient()

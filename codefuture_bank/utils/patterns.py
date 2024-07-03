@@ -19,13 +19,13 @@ class Singleton(object):
         pass
 
 
-class AbstractFactoryInterface(Singleton, ABC):
+class AbstractFactoryInterface(ABC):
     @abstractmethod
     def create(self, *args, **kwargs):
         pass
 
 
-class BaseManagerInterface(ABC, Singleton):
+class BaseManagerInterface(ABC):
     @abstractmethod
     def new(self, *args, **kwargs):
         pass

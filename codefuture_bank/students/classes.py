@@ -1,18 +1,20 @@
 from students import interfaces
 from typing import Optional, Dict
 
+from tables.classes import Table
 from tables.interfaces import TableInterface
 from tables.models import GoogleTables
 from students.models import Students
 from serializers.serializers import phone_serializer, fcs_serializer
+from utils.patterns import Singleton
 
 
 class Student(interfaces.StudentInterface):
     def __init__(self, telegram_id: Optional[int], username: Optional[str], phone: str, fcs: str):
         self.__telegram_id = telegram_id
         self.__username = username
-        self.__phone = phone
-        self.__fcs = fcs
+        self.__phone = phone_serializer(phone)
+        self.__fcs = fcs_serializer(fcs)
 
     @property
     def phone(self):
@@ -73,19 +75,17 @@ class BaseStudentsIterator(interfaces.StudentIteratorInterface):
         return self.__name
 
     def get_row(self):
-
         row = self.__table.get_row(self.row)
         assert row.get("fcs"), "Iterator is over"
 
         return row
 
-    def get_student(self, row: list):
-
-        phone = phone_serializer(row[self.__table.phone_col])
-        fcs = fcs_serializer(row[self.__table.fcs_col])
+    def get_student(self, row: dict):
+        phone = phone_serializer(row["phone"])
+        fcs = fcs_serializer(row["fcs"])
 
         try:
-            student = Students.objects.get(phone)
+            student = Students.objects.get(phone=phone)
             return Student(student.telegram_id, student.username, student.phone, student.fcs)
 
         except Students.DoesNotExist:
@@ -123,13 +123,14 @@ class NotInDatabaseOnlyIterator(BaseStudentsIterator):
             return student
 
 
-class StudentsIteratorFactory(interfaces.StudentInteratorFactoryInterface):
+class StudentsIteratorFactory(interfaces.StudentInteratorFactoryInterface, Singleton):
 
     def __init__(self):
         super().__init__()
         tables = GoogleTables.objects.all()
         for table in tables:
-            self.create(table.name, table, 'all')
+            table_object = Table(table.name, table.sheet_id, table.sheet_name, table.fcs_column, table.phone_column, table.status_column)
+            self.create(table.name, table_object, 'all')
 
     def create(self, name, table: TableInterface, iter_type: str, *args, **kwargs):
         iterator = None
@@ -146,7 +147,7 @@ class StudentsIteratorFactory(interfaces.StudentInteratorFactoryInterface):
         return iterator
 
 
-class StudentsIteratorManager(interfaces.StudentIteratorManagerInterface):
+class StudentsIteratorManager(interfaces.StudentIteratorManagerInterface, Singleton):
 
     def init(self, *args, **kwargs):
         self.__iterators: Dict[str, interfaces.StudentIteratorInterface] = {}
@@ -161,7 +162,10 @@ class StudentsIteratorManager(interfaces.StudentIteratorManagerInterface):
 
     def new(self, iterator: interfaces.StudentIteratorInterface, *args, **kwargs):
         if self.__iterators.get(iterator.name) is not None:
-            raise ValueError(f'Table {iterator.name} already exists')
+            raise ValueError(f'Iterator {iterator.name} already exists')
 
         self.__iterators[iterator.name] = iterator
         return iterator
+
+
+StudentsIteratorFactory()

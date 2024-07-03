@@ -39,12 +39,11 @@ class CreateTableView(APIView):
 
         factory = TableFactory()
         try:
-            factory.create(table_name, sheet_name, sheet_id, fcs_column, status_column, phone_column)
+            factory.create(table_name, sheet_id, sheet_name, fcs_column, status_column, phone_column)
 
             return Response({'status': True, "message": None})
         except ValueError:
             return Response({'status': False, 'message': f"table {table_name} already exists"})
-
 
 
 class CreateStudentView(APIView):
@@ -86,8 +85,8 @@ class GetNextLine(APIView):
         try:
             iterator: StudentIteratorInterface = manager.get(iterator_name)
             row: Student = iterator.next()
-            return Response({"status": True, "message": "", **row})
-        except ValueError:
+            return Response({"status": True, "message": "", "telegram_id": row.telegram_id, "username": row.username, "phone": row.phone, "fcs": row.fcs})
+        except ValueError as error:
             return Response({"status": False, "message": f"iterator {iterator_name} does not exist"})
 
 

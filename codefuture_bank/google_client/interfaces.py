@@ -1,8 +1,7 @@
 from abc import ABC, abstractmethod
-from utils.patterns import Singleton
 
 
-class GoogleClientInterface(ABC, Singleton):
+class GoogleClientInterface(ABC):
     @abstractmethod
     def write_data(self, row, column, data, sheet_id, sheet_name, *args, **kwargs):
         pass

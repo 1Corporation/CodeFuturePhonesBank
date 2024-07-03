@@ -14,5 +14,5 @@ def phone_serializer(phone: str) -> str:
     return phone
 
 
-def fcs_serializer(fsc: str) -> str:
-    return fsc.lower()
+def fcs_serializer(fcs: str) -> str:
+    return fcs.lower()

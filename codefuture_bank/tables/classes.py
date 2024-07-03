@@ -3,6 +3,7 @@ from typing import Dict
 from google_client.classes import GoogleClient
 from tables.interfaces import TableManagerInterface, TableInterface, TableFactoryInterface
 from tables.models import GoogleTables
+from utils.patterns import Singleton
 
 
 class Table(TableInterface):
@@ -29,9 +30,9 @@ class Table(TableInterface):
 
     def get_row(self, row: int):
         client = GoogleClient()
-        row = client.read_row(row, self.__sheet_id, self.__sheet_name).row
+        row = client.read_row(row, self.__sheet_id, self.__sheet_name)
         return {
-            "fsc": row[self.__fcs_column],
+            "fcs": row[self.__fcs_column],
             "phone": row[self.__phone_column],
             "status": row[self.__status_column]
         }
@@ -52,7 +53,7 @@ class Table(TableInterface):
         return self.__fcs_column
 
 
-class TableManager(TableManagerInterface):
+class TableManager(TableManagerInterface, Singleton):
 
     def init(self):
         self.__tables: Dict[str, TableInterface] = {}
@@ -73,21 +74,27 @@ class TableManager(TableManagerInterface):
         return table
 
 
-class TableFactory(TableFactoryInterface):
+class TableFactory(TableFactoryInterface, Singleton):
 
-    def init(self):
-        super().__init__()
+    def init(self, *args, **kwargs):
         tables = GoogleTables.objects.all()
         for table in tables:
             self.create(table.name, table.sheet_id, table.sheet_name, table.fcs_column, table.phone_column,
                         table.status_column)
 
     def create(self, table_name: str, sheet_id: str, sheet_name: str, fcs_column: int, phone_column: int,
-               status_column: int, *args, **kwargs):
+               status_column: int, *args: object, **kwargs: object) -> object:
         table = Table(table_name, sheet_id, sheet_name, fcs_column, phone_column, status_column)
-        google_table = GoogleTables(name=table_name, sheet_id=sheet_id, sheet_name=sheet_name, fcs_column=fcs_column,
-                                    phone_column=phone_column, status_column=status_column)
-        google_table.save()
+
+        if not GoogleTables.objects.filter(name=table_name).exists():
+            google_table = GoogleTables(name=table_name, sheet_id=sheet_id, sheet_name=sheet_name,
+                                        fcs_column=fcs_column,
+                                        phone_column=phone_column, status_column=status_column)
+            google_table.save()
+
         TableManager().new(table)
 
         return table
+
+
+TableFactory()
