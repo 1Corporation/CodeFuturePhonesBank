@@ -1,19 +1,36 @@
-from django.shortcuts import render
 from rest_framework.response import Response
+from rest_framework.request import Request, HttpRequest
 from rest_framework.views import APIView
+import jwt
 
 from students.classes import Student
 from tables.classes import TableManager, TableManagerInterface, TableInterface, TableFactory, TableFactoryInterface
 from students.classes import StudentsIteratorManager, StudentsIteratorFactory
 from students.interfaces import StudentIteratorInterface, StudentIteratorManagerInterface
+from api.utils import authorization
+from codefuture_bank.settings import SECRET_KEY
+from apps.models import Apps
 
 
 class RegisterAppView(APIView):
-    def post(self, request):
-        pass
+    def post(self, request: HttpRequest):
+        if not request.headers.get("auth_token") == SECRET_KEY:
+            return Response({"status": 403, "message": "permissions denied"})
+
+        name = request.query_params.get("name")
+
+        app = Apps(name=name)
+        app.save()
+
+        token = jwt.encode({"id": app.id,
+                            "name": app.name},
+                           SECRET_KEY)
+
+        return Response({"status": 200, "message": "app successful created", "token": token})
 
 
 class RegisterIterator(APIView):
+    @authorization
     def post(self, request):
         iter_name = request.query_params.get('iter_name')
         table_name = request.query_params.get('table_name')
@@ -29,6 +46,7 @@ class RegisterIterator(APIView):
 
 
 class CreateTableView(APIView):
+    @authorization
     def post(self, request):
         table_name = request.query_params.get('table_name')
         sheet_name = request.query_params.get('sheet_name')
@@ -47,6 +65,7 @@ class CreateTableView(APIView):
 
 
 class CreateStudentView(APIView):
+    @authorization
     def post(self, request):
         telegram_id = request.query_params.get('telegram_id')
         fcs = request.query_params.get('fcs')
@@ -63,6 +82,8 @@ class CreateStudentView(APIView):
 
 
 class StudentSetStatusView(APIView):
+
+    @authorization
     def post(self, request):
         table_name = request.query_params.get('table_name')
         row = int(request.query_params.get('row'))
@@ -78,6 +99,7 @@ class StudentSetStatusView(APIView):
 
 
 class GetNextLine(APIView):
+    @authorization
     def get(self, request):
         iterator_name = request.query_params.get('iterator_name')
 

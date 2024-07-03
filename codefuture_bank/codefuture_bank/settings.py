@@ -50,6 +50,9 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    #'api.middleware.StatusMiddleware',
+   # 'api.middleware.ErrorHandlerMiddleware'
 ]
 
 ROOT_URLCONF = 'codefuture_bank.urls'

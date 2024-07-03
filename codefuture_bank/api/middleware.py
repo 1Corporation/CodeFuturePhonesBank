@@ -3,8 +3,7 @@ class AuthMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        if not self.get_response.get('need_auth'):
-            return
+        return self.get_response(request)
 
 
 class StatusMiddleware:
@@ -12,7 +11,7 @@ class StatusMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        pass
+        return self.get_response(request)
 
 
 class ErrorHandlerMiddleware:
@@ -20,4 +19,4 @@ class ErrorHandlerMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        pass
+        return self.get_response(request)
