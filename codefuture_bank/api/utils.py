@@ -1,18 +1,18 @@
 import os
 
+import jwt
 from rest_framework.response import Response
-from rest_framework.request import Request
+from jwt.exceptions import DecodeError
+
+from codefuture_bank.settings import SECRET_KEY
 
 
 def authorization(func):
-    async def wrapper(self, request: Request):
+    def wrapper(self, request, *args, **kwargs):
         try:
-            if request.META.get("HTTP_AUTHORIZATION") == os.getenv("SERVER_AUTHKEY"):
-                return await func(self, request)
+            decoded_token = jwt.decode(request.META.get("HTTP_AUTHORIZATION"), SECRET_KEY, algorithms=['HS256'])
+            return func(self, request, decoded_token)
+        except DecodeError:
+            return Response({"message": "token is invalid"})
 
-            return Response({'Неверный ключ авторизации!'})
-
-        except KeyError:
-
-            return Response({'Неверный ключ авторизации!'})
     return wrapper

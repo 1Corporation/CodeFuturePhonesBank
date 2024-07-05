@@ -6,6 +6,6 @@ class Apps(models.Model):
 
 
 class Stats(models.Model):
-    id = models.ForeignKey(Apps, on_delete=models.CASCADE, primary_key=True)
+    id = models.OneToOneField(Apps, on_delete=models.CASCADE, primary_key=True)
     student_regs = models.IntegerField()
     student_sends = models.IntegerField()

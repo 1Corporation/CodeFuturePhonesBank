@@ -13,14 +13,20 @@ from apps.models import Apps
 
 
 class RegisterAppView(APIView):
-    def post(self, request: HttpRequest):
-        if not request.headers.get("auth_token") == SECRET_KEY:
+
+    def post(self, request):
+        print(request.headers)
+        if request.headers.get("auth_token") != SECRET_KEY:
             return Response({"status": 403, "message": "permissions denied"})
 
         name = request.query_params.get("name")
 
-        app = Apps(name=name)
-        app.save()
+        try:
+            app = Apps.objects.get(name=name)
+        except Apps.DoesNotExist:
+
+            app = Apps(name=name)
+            app.save()
 
         token = jwt.encode({"id": app.id,
                             "name": app.name},
@@ -31,7 +37,7 @@ class RegisterAppView(APIView):
 
 class RegisterIterator(APIView):
     @authorization
-    def post(self, request):
+    def post(self, request, *args, **kwargs):
         iter_name = request.query_params.get('iter_name')
         table_name = request.query_params.get('table_name')
         iter_type = request.query_params.get('iter_type')
@@ -47,7 +53,7 @@ class RegisterIterator(APIView):
 
 class CreateTableView(APIView):
     @authorization
-    def post(self, request):
+    def post(self, request, *args, **kwargs):
         table_name = request.query_params.get('table_name')
         sheet_name = request.query_params.get('sheet_name')
         sheet_id = request.query_params.get('sheet_id')
@@ -66,7 +72,7 @@ class CreateTableView(APIView):
 
 class CreateStudentView(APIView):
     @authorization
-    def post(self, request):
+    def post(self, request, *args, **kwargs):
         telegram_id = request.query_params.get('telegram_id')
         fcs = request.query_params.get('fcs')
         phone = request.query_params.get('phone')
@@ -84,7 +90,7 @@ class CreateStudentView(APIView):
 class StudentSetStatusView(APIView):
 
     @authorization
-    def post(self, request):
+    def post(self, request, *args, **kwargs):
         table_name = request.query_params.get('table_name')
         row = int(request.query_params.get('row'))
         status = request.query_params.get('status')
@@ -100,7 +106,7 @@ class StudentSetStatusView(APIView):
 
 class GetNextLine(APIView):
     @authorization
-    def get(self, request):
+    def get(self, request, *args, **kwargs):
         iterator_name = request.query_params.get('iterator_name')
 
         manager: StudentIteratorManagerInterface = StudentsIteratorManager()

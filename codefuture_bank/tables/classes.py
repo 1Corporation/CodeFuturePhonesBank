@@ -1,5 +1,7 @@
 from typing import Dict
 
+from django.db.utils import OperationalError
+
 from google_client.classes import GoogleClient
 from tables.interfaces import TableManagerInterface, TableInterface, TableFactoryInterface
 from tables.models import GoogleTables
@@ -97,4 +99,7 @@ class TableFactory(TableFactoryInterface, Singleton):
         return table
 
 
-TableFactory()
+try:
+    TableFactory()
+except OperationalError:
+    pass

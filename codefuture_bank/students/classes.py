@@ -1,4 +1,5 @@
 from students import interfaces
+from django.db.utils import OperationalError
 from typing import Optional, Dict
 
 from tables.classes import Table
@@ -167,5 +168,7 @@ class StudentsIteratorManager(interfaces.StudentIteratorManagerInterface, Single
         self.__iterators[iterator.name] = iterator
         return iterator
 
-
-StudentsIteratorFactory()
+try:
+    StudentsIteratorFactory()
+except OperationalError:
+    pass
