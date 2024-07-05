@@ -11,8 +11,6 @@ services:
             - daphne
         ports:
             - 80:80
-        volumes:
-            - avatars:/static/avatars/
 
     database:
         build:
@@ -20,9 +18,9 @@ services:
             dockerfile: ./dockerfiles/postgres/Dockerfile
         container_name: 'database'
         environment:
-            POSTGRES_DB: "chess_database"
-            POSTGRES_USER: "chess"
-            POSTGRES_PASSWORD: "12345678"
+            POSTGRES_DB: "codefuturebank"
+            POSTGRES_USER: "max"
+            POSTGRES_PASSWORD: "123Max123Ma_"
         expose:
             - 5432
 
@@ -38,14 +36,8 @@ services:
         restart: always
         expose:
            - 8000
-        volumes:
-            - avatars:/static/avatars/
 
 
 networks:
     database_network:
         driver: bridge
-
-volumes:
-     avatars:
-        external: true
