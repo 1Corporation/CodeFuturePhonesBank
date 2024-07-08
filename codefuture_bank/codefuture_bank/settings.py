@@ -86,11 +86,11 @@ WSGI_APPLICATION = 'codefuture_bank.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('DB_NAME'),
-        'USER': os.getenv('DB_USER'),
+        'NAME': os.getenv('DATABASE_NAME'),
+        'USER': os.getenv('DATABASE_USER'),
         'PASSWORD': os.getenv('DATABASE_PASSWORD'),
-        'HOST': os.getenv('DB_HOST'),
-        "PORT": os.getenv("DATABSE_PORT")
+        'HOST': os.getenv('DATABASE_HOST'),
+        "PORT": os.getenv("DATABASE_PORT")
     }
 }
 

@@ -15,7 +15,6 @@ from apps.models import Apps
 class RegisterAppView(APIView):
 
     def post(self, request):
-        print(request.headers)
         if request.headers.get("auth_token") != SECRET_KEY:
             return Response({"status": 403, "message": "permissions denied"})
 

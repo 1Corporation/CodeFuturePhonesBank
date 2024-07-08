@@ -5,18 +5,17 @@ services:
 
     nginx:
         build:
-            context: dockerfiles
+            context: .
             dockerfile: ./dockerfiles/nginx/Dockerfile
         depends_on:
-            - daphne
+            - backend
         ports:
             - 80:80
 
     database:
         build:
-            context: dockerfiles
+            context: .
             dockerfile: ./dockerfiles/postgres/Dockerfile
-        container_name: 'database'
         environment:
             POSTGRES_DB: "codefuturebank"
             POSTGRES_USER: "max"
@@ -24,13 +23,12 @@ services:
         expose:
             - 5432
 
-    daphne:
+    backend:
         build:
-            context: dockerfiles
+            context: .
             dockerfile: ./dockerfiles/web/Dockerfile
-        container_name: 'daphne'
         tty: true
-        command: python3 -u -m daphne web_django.asgi:application -b daphne -p 8000
+        command: python3 -u -m gunicorn codefuture_bank.wsgi -b backend -p 8000
         depends_on:
             - database
         restart: always
