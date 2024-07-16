@@ -39,6 +39,11 @@ class StudentIteratorInterface(ABC):
     def name(self):
         pass
 
+    @property
+    @abstractmethod
+    def row(self):
+        pass
+
 
 class StudentIteratorManagerInterface(BaseManagerInterface):
     pass
