@@ -126,7 +126,8 @@ class NotInDatabaseOnlyIterator(BaseStudentsIterator):
 
 class StudentsIteratorFactory(interfaces.StudentInteratorFactoryInterface, Singleton):
 
-    def __init__(self):
+    def init(self):
+
         super().__init__()
         tables = GoogleTables.objects.all()
         for table in tables:

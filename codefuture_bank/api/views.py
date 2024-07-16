@@ -95,6 +95,7 @@ class StudentSetStatusView(APIView):
         status = request.query_params.get('status')
 
         table_manager: TableManagerInterface = TableManager()
+
         try:
             table: TableInterface = table_manager.get(table_name)
             table.set_status(row, status)
@@ -112,7 +113,7 @@ class GetNextLine(APIView):
         try:
             iterator: StudentIteratorInterface = manager.get(iterator_name)
             row: Student = iterator.next()
-            return Response({"status": True, "message": "", "telegram_id": row.telegram_id, "username": row.username, "phone": row.phone, "fcs": row.fcs})
+            return Response({"status": True, "row": iterator.row, "message": "", "telegram_id": row.telegram_id, "username": row.username, "phone": row.phone, "fcs": row.fcs})
         except ValueError as error:
             return Response({"status": False, "message": f"iterator {iterator_name} does not exist"})
 
